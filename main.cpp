@@ -114,9 +114,9 @@ int main() {
     int numOfGraphGenerations = 1000;
 
     ofstream fout("D:/algo/avgValues.txt");
-    double avgOP;
+    long double avgOP;
     for (int numOfVerteces = 2; numOfVerteces < maxNumOfVerteces; ++numOfVerteces) {
-        avgOP = double(foutOpForRandomGraphs(maxNumOfVerteces, numOfGraphGenerations))/1000;
+        avgOP = foutOpForRandomGraphs(numOfVerteces, numOfGraphGenerations)/(long double)numOfGraphGenerations;
         cout << numOfVerteces << ' ' << avgOP << '\n';
         fout << numOfVerteces << ' ' << avgOP << '\n';
     }
