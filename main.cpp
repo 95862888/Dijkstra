@@ -73,48 +73,44 @@ vector<ulli> minDistToEachVertex(ulli& op, vector<vector<pair<ulli, ulli>>>& g) 
     return minDist;
 }
 
+void printAdjacencyList(vector<vector<pair<ulli, ulli>>>& g) {
+    for (vector<pair<ulli, ulli>>& v : g) {
+        for (pair<ulli, ulli>& nb : v)
+            cout << nb.F << ' ';
+        if(!v.empty())
+            cout << '\n';
+    }
+}
+
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(0);
 
-    int n = 20;
+    srand(time (0));
 
-    ofstream fout_base_case("D:\\algo\\base_case.txt");
+    const int maxNumOfVerteces = 20;
+    ofstream fout("D:/algo/base_case.txt");
+    vector<vector<pair<ulli, ulli>>> g;
     ulli op;
-    for (int i = 2; i <= n; ++i) {
-        for (int j = 0; j <= (i * (i - 1)) / 2; ++j) {
+    ulli maxOP;
+    ulli minOP;
+    for (int i = 2; i < 20; ++i) {
+        maxOP = -1;
+        minOP = ULONG_LONG_MAX;
+        for (int j = 0; j < 1000; ++j) {
             op = 0;
 
-            vector<vector<pair<ulli, ulli>>> g = generateRandomGraph(i, j, false); //adjacencyList
+            int numOfEdges = abs(rand()) % (((i * (i - 1)) / 2) + 1);
+            g = generateRandomGraph(i, numOfEdges, false);
             minDistToEachVertex(op, g);
-            fout_base_case << i << ' '  << j << ' ' << op << '\n';
+
+            if(op > maxOP)
+                maxOP = op;
+            if(op < minOP)
+                minOP = op;
         }
+
+        fout << minOP << ' ' << maxOP << '\n';
     }
-    fout_base_case.close();
-
-    ofstream fout_worst_case("D:\\algo\\worst_case.txt");
-    for (int i = 2; i <= n; ++i) {
-        for (int j = 0; j <= (i * (i - 1)) / 2; ++j) {
-            op = 0;
-
-            //generate the complete graphs(every pair of distinct vertices is connected by a unique edge)
-            //worst case
-            vector<vector<pair<ulli, ulli>>> g = generateRandomGraph(i, j, true);
-            minDistToEachVertex(op, g);
-            fout_worst_case << i << ' '  << j << ' ' << op << '\n';
-        }
-    }
-    fout_worst_case.close();
-
-    ofstream fout_best_case("D:\\algo\\best_case.txt");
-    for (int i = 2; i <= n; ++i) {
-        op = 0;
-
-        //xd graph without edges
-        vector<vector<pair<ulli, ulli>>> g = generateRandomGraph(i, 0, false);
-        minDistToEachVertex(op, g);
-        fout_best_case << i << ' '  << 0 << ' ' << op << '\n';
-    }
-    fout_best_case.close();
 
     return 0;
 }
