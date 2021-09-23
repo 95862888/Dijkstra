@@ -15,7 +15,7 @@ vector<vector<pair<ulli, ulli>>> generateRandomGraph(int numOfVerteces, int numO
         for (int i = 0; i < numOfVerteces; ++i) {
             for (int j = i; j < numOfVerteces; ++j) {
                 if (rand() % 2 || completeGraph) {
-                    adjacencyMatrix[i][j] = abs(rand()) % 100;
+                    adjacencyMatrix[i][j] = rand() % 100;
                     numOfEdges--;
                 } else {
                     adjacencyMatrix[i][j] = INT_MAX;
@@ -82,35 +82,45 @@ void printAdjacencyList(vector<vector<pair<ulli, ulli>>>& g) {
     }
 }
 
+ulli foutOpForRandomGraphs(int& numOfVerteces, int& numOfGenerations) {
+    srand(time(0));
+    ofstream fout_txt("D:/algo/output.txt", ios::app);
+    vector<vector<pair<ulli, ulli>>> g;
+    ulli op;
+    ulli sumOP = 0;
+
+    for (int j = 0; j < numOfGenerations; ++j) {
+        op = 0;
+        g.clear();
+
+        int numOfEdges = rand() % (((numOfVerteces * numOfVerteces - numOfVerteces) / 2) + 1);
+        g = generateRandomGraph(numOfVerteces, numOfEdges, false);
+        minDistToEachVertex(op, g);
+
+        fout_txt << op << ' ';
+        sumOP += op;
+    }
+
+    fout_txt << '\n';
+    fout_txt.close();
+
+    return sumOP;
+}
+
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(0);
 
-    srand(time (0));
+    int maxNumOfVerteces = 20;
+    int numOfGraphGenerations = 1000;
 
-    const int maxNumOfVerteces = 20;
-    ofstream fout("D:/algo/base_case.txt");
-    vector<vector<pair<ulli, ulli>>> g;
-    ulli op;
-    ulli maxOP;
-    ulli minOP;
-    for (int i = 2; i < 20; ++i) {
-        maxOP = -1;
-        minOP = ULONG_LONG_MAX;
-        for (int j = 0; j < 1000; ++j) {
-            op = 0;
-
-            int numOfEdges = abs(rand()) % (((i * (i - 1)) / 2) + 1);
-            g = generateRandomGraph(i, numOfEdges, false);
-            minDistToEachVertex(op, g);
-
-            if(op > maxOP)
-                maxOP = op;
-            if(op < minOP)
-                minOP = op;
-        }
-
-        fout << minOP << ' ' << maxOP << '\n';
+    ofstream fout("D:/algo/avgValues.txt");
+    double avgOP;
+    for (int numOfVerteces = 2; numOfVerteces < maxNumOfVerteces; ++numOfVerteces) {
+        avgOP = double(foutOpForRandomGraphs(maxNumOfVerteces, numOfGraphGenerations))/1000;
+        cout << numOfVerteces << ' ' << avgOP << '\n';
+        fout << numOfVerteces << ' ' << avgOP << '\n';
     }
+    fout.close();
 
     return 0;
 }
