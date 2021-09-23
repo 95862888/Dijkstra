@@ -9,25 +9,27 @@ using namespace std;
 typedef unsigned long long int ulli;
 
 vector<vector<pair<ulli, ulli>>> generateRandomGraph(int numOfVerteces, int numOfEdges, bool completeGraph) {
-    vector<vector<ulli>> adjacencyMatrix(numOfVerteces, vector<ulli>(numOfVerteces));
-    for (int i = 0; i < numOfVerteces; ++i) {
-        for (int j = i; j < numOfVerteces; ++j) {
-            if(rand() % 2 || completeGraph) {
-                adjacencyMatrix[i][j] = abs(rand()) % 100;
-                numOfEdges--;
-            }
-            else {
-                adjacencyMatrix[i][j] = INT_MAX;
-            }
+    vector<vector<ulli>> adjacencyMatrix(numOfVerteces, vector<ulli>(numOfVerteces, INT_MAX));
 
-            if(i == j)
-                adjacencyMatrix[i][j] = 0;
+    if(numOfEdges > 0 || completeGraph) {
+        for (int i = 0; i < numOfVerteces; ++i) {
+            for (int j = i; j < numOfVerteces; ++j) {
+                if (rand() % 2 || completeGraph) {
+                    adjacencyMatrix[i][j] = abs(rand()) % 100;
+                    numOfEdges--;
+                } else {
+                    adjacencyMatrix[i][j] = INT_MAX;
+                }
 
-            if(numOfEdges == 0 && !completeGraph)
+                if (i == j)
+                    adjacencyMatrix[i][j] = 0;
+
+                if (numOfEdges <= 0 && !completeGraph)
+                    break;
+            }
+            if (numOfEdges <= 0 && !completeGraph)
                 break;
         }
-        if(numOfEdges == 0 && !completeGraph)
-            break;
     }
 
     vector<vector<pair<ulli, ulli>>> adjacencyList(numOfVerteces);
