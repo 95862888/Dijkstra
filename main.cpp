@@ -41,7 +41,7 @@ vector<vector<pair<ulli, ulli>>> generateRandomGraph(int numOfVerteces, int numO
     }
 
     return adjacencyList;
-};
+}
 
 //aka Dijkstra
 vector<ulli> minDistToEachVertex(ulli& op, vector<vector<pair<ulli, ulli>>>& g) {
@@ -49,12 +49,12 @@ vector<ulli> minDistToEachVertex(ulli& op, vector<vector<pair<ulli, ulli>>>& g) 
 
     minDist[0] = 0; op++;
 
-    set<pair<ulli, ulli>> q;
+    multiset<pair<ulli, ulli>> q;
     q.insert({minDist[0], 0}); //pair<distance, vertex>
-    if(!q.empty()) op += log2l(q.size());
+    if(!q.empty()) op += ulli(log2l(q.size()));
     while(!q.empty()) {
-        int vertex = q.begin()->second; op++;
-        q.erase(q.begin()); if(!q.empty()) op += log2l(q.size());
+        ulli vertex = q.begin()->second; op++;
+        q.erase(q.begin()); if(!q.empty()) op += ulli(log2l(q.size()));
 
         //iterate over all adjacent vertices
         for (size_t j = 0; j < g[vertex].size(); ++j, op += 2) {
@@ -63,9 +63,9 @@ vector<ulli> minDistToEachVertex(ulli& op, vector<vector<pair<ulli, ulli>>>& g) 
 
             op += 2;
             if (minDist[vertex] + distance < minDist[to]) {
-                q.erase({minDist[to], to}); if(!q.empty()) op += log2l(q.size());
+                q.erase({minDist[to], to}); if(!q.empty()) op += ulli(log2l(q.size()));
                 minDist[to] = minDist[vertex] + distance; op += 2;
-                q.insert({minDist[to], to}); if(!q.empty()) op += log2l(q.size());
+                q.insert({minDist[to], to}); if(!q.empty()) op += ulli(log2l(q.size()));
             }
         }
     }
@@ -82,12 +82,14 @@ void printAdjacencyList(vector<vector<pair<ulli, ulli>>>& g) {
     }
 }
 
-ulli foutOpForRandomGraphs(int& numOfVerteces, int& numOfGenerations) {
-    srand(time(0));
-    ofstream fout_txt("D:/algo/output.txt", ios::app);
+void foutOpForRandomGraphs(int& numOfVerteces, int& numOfGenerations) {
+    srand(time(nullptr));
     vector<vector<pair<ulli, ulli>>> g;
     ulli op;
+    ulli maxOP = 0;
+    ulli minOP = ULONG_LONG_MAX;
     ulli sumOP = 0;
+    long double avgOP;
 
     for (int j = 0; j < numOfGenerations; ++j) {
         op = 0;
@@ -97,30 +99,42 @@ ulli foutOpForRandomGraphs(int& numOfVerteces, int& numOfGenerations) {
         g = generateRandomGraph(numOfVerteces, numOfEdges, false);
         minDistToEachVertex(op, g);
 
-        fout_txt << op << ' ';
+        if(op < minOP)
+            minOP = op;
+
         sumOP += op;
     }
 
-    fout_txt << '\n';
-    fout_txt.close();
+    avgOP = sumOP/(double)numOfGenerations;
 
-    return sumOP;
+    //the worst case is a complete graph
+    //a separate case because it is very difficult to get a complete graph by random generation
+    op = 0;
+    g.clear();
+    g = generateRandomGraph(numOfVerteces, 0, true);
+    minDistToEachVertex(op, g);
+    maxOP = op;
+
+    ofstream fout("../output.txt", ios::app);
+    fout << numOfVerteces << ' ' << minOP << ' ' << avgOP << ' ' << maxOP << '\n';
+    fout.close();
 }
 
 int main() {
-    ios_base::sync_with_stdio(false); cin.tie(0);
-
     int maxNumOfVerteces = 20;
     int numOfGraphGenerations = 1000;
 
-    ofstream fout("D:/algo/avgValues.txt");
-    long double avgOP;
-    for (int numOfVerteces = 2; numOfVerteces < maxNumOfVerteces; ++numOfVerteces) {
-        avgOP = foutOpForRandomGraphs(numOfVerteces, numOfGraphGenerations)/(long double)numOfGraphGenerations;
-        cout << numOfVerteces << ' ' << avgOP << '\n';
-        fout << numOfVerteces << ' ' << avgOP << '\n';
-    }
+    cout << "Enter the maximum number of vertices in the graph:\n";
+    cin >> maxNumOfVerteces;
+    cout << "Enter the number of generations of random graphs for each number of vertices:\n";
+    cin >> numOfGraphGenerations;
+
+    ofstream fout("../output.txt");
     fout.close();
+
+    for (int numOfVerteces = 2; numOfVerteces <= maxNumOfVerteces; ++numOfVerteces) {
+        foutOpForRandomGraphs(numOfVerteces, numOfGraphGenerations);
+    }
 
     return 0;
 }
